@@ -45,7 +45,6 @@ function CartProvider({ children }: { children: React.ReactNode }) {
   const count = items.reduce((s, i) => s + i.quantity, 0);
   const addItem = (svc: SpaService) => {
     setItems(p => { const e = p.find(i => i.id === svc.id); return e ? p.map(i => i.id === svc.id ? { ...i, quantity: i.quantity + 1 } : i) : [...p, { ...svc, quantity: 1 }]; });
-    setOpen(true);
   };
   const removeItem = (id: string) => setItems(p => p.filter(i => i.id !== id));
   const updateQty = (id: string, q: number) => { if (q <= 0) return removeItem(id); setItems(p => p.map(i => i.id === id ? { ...i, quantity: q } : i)); };
@@ -56,8 +55,6 @@ function CartProvider({ children }: { children: React.ReactNode }) {
    NAVBAR
    ═══════════════════════════════════════════════════════════════ */
 const NAV_LINKS = [
-  { name: "INICIO", href: "#" },
-  { name: "EXPERIENCIA", href: "#experiencia" },
   { name: "TRATAMIENTOS", href: "#tratamientos" },
   { name: "GALERÍA", href: "#galeria" },
   { name: "UBICACIÓN", href: "#ubicacion" },
@@ -128,13 +125,23 @@ function Navbar() {
           {/* Right */}
           <div className="flex gap-4 items-center text-[11px] tracking-wider ml-auto">
             <div className="relative" ref={langRef}>
+              {/* Desktop Button */}
               <button onClick={() => setLangOpen(!langOpen)} className={`hidden lg:flex items-center gap-2 hover:text-burgundy transition-all ${txm} uppercase font-bold py-1`}>
                 {lang === "es" ? <MXFlag /> : <USFlag />}
                 <span>{lang === "es" ? "ESP" : "ENG"}</span>
                 <ChevronDown size={12} className={`transition-transform duration-300 ${langOpen ? "rotate-180" : ""}`} />
               </button>
-              {/* Dropdown */}
-              <div className={`absolute top-full right-0 mt-2 w-40 bg-[var(--cream)]/90 backdrop-blur-md border border-[var(--border-color)] shadow-xl z-50 transition-all duration-300 origin-top-right ${langOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"}`}>
+
+              {/* Mobile Toggle (Option A) */}
+              <button 
+                onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+                className={`lg:hidden flex items-center text-[10px] font-sans tracking-[0.2em] font-bold py-2 transition-colors ${scrolled ? "text-burgundy" : "text-white/90"}`}
+              >
+                {lang === 'es' ? 'ENG' : 'ESP'}
+              </button>
+
+              {/* Dropdown (Desktop only) */}
+              <div className={`absolute top-full right-0 mt-2 w-40 bg-[var(--cream)]/90 backdrop-blur-md border border-[var(--border-color)] shadow-xl z-50 transition-all duration-300 origin-top-right hidden lg:block ${langOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"}`}>
                 <button onClick={() => { setLang("es"); setLangOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-burgundy hover:text-white transition-colors ${lang === "es" ? "text-burgundy font-bold" : "text-[var(--text)]"}`}>
                   <MXFlag /> Español
                 </button>
@@ -143,13 +150,13 @@ function Navbar() {
                 </button>
               </div>
             </div>
-            <button onClick={() => setOpen(true)} className="bg-burgundy hover:bg-burgundy/90 text-white px-5 py-2 text-[10px] tracking-[0.15em] font-sans font-semibold shadow-lg shadow-[var(--burgundy)]/20 transition-colors uppercase">{t('nav.book')}</button>
+            <button onClick={() => setOpen(true)} className="hidden md:block bg-burgundy hover:bg-burgundy/90 text-white px-5 py-2 text-[10px] tracking-[0.15em] font-sans font-semibold shadow-lg shadow-[var(--burgundy)]/20 transition-colors uppercase">{t('nav.book')}</button>
           </div>
         </div>
       </div>
 
       {/* Row 2: Persistent Navigation Links */}
-      <div className={`relative z-10 transition-all duration-300 ${scrolled ? "bg-white/80" : "bg-black/20"} backdrop-blur-md border-t border-white/5`}>
+      <div className={`relative z-10 transition-all duration-300 hidden md:block ${scrolled ? "bg-white/80" : "bg-black/20"} backdrop-blur-md border-t border-white/5`}>
         <div className="max-w-7xl mx-auto px-4 flex justify-center items-center gap-6 md:gap-10 h-10 overflow-x-auto no-scrollbar">
           {NAV_LINKS.map(l => (
             <a key={l.name} href={l.href} className={`text-[9px] md:text-[11px] tracking-[0.15em] font-sans whitespace-nowrap hover:text-burgundy transition-colors ${scrolled ? "text-[var(--text)]" : "text-white/80"}`}>
@@ -170,7 +177,7 @@ function Hero() {
   return (
     <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
-        <img src={images.hero} alt="DALI SPA" className="w-full h-full object-cover object-[center_15%]" fetchPriority="high" />
+        <img src={images.hero} alt="DALI SPA" className="w-full h-full object-cover object-[80%_15%] md:object-[center_15%]" fetchPriority="high" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
       </div>
       <div className="relative z-10 flex flex-col items-center text-center px-4 -translate-y-16 lg:-translate-y-24">
@@ -181,28 +188,7 @@ function Hero() {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   INFO SECTIONS
-   ═══════════════════════════════════════════════════════════════ */
-function InfoSections() {
-  const { setOpen } = useCart();
-  const { t } = useLanguage();
-  return (
-    <>
-      {/* About */}
-      <section id="experiencia" className="py-20 lg:py-28 bg-[var(--cream)]">
-        <Reveal className="max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <p className="text-sm font-sans leading-[1.9] text-[var(--text-muted)] tracking-wide text-justify">
-            {t('about.description')}
-          </p>
-          <div className="aspect-[16/10] overflow-hidden">
-            <img src={images.skin} alt="Skin Treatment" className="w-full h-full object-cover luxury-hover" loading="lazy" />
-          </div>
-        </Reveal>
-      </section>
-    </>
-  );
-}
+
 
 /* ═══════════════════════════════════════════════════════════════
    TREATMENT MENU
@@ -213,44 +199,59 @@ function TreatmentMenu() {
   const [imgIdx, setImgIdx] = useState(0);
   const { addItem } = useCart();
   const { t } = useLanguage();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRefDesktop = useRef<HTMLDivElement>(null);
+  const scrollRefMobile = useRef<HTMLDivElement>(null);
 
   const filtered = treatments.filter(t => t.category === cat);
   const catImgs = CATEGORY_IMAGES[cat] || [images.saludCutanea];
 
-  const scroll = (d: "l" | "r") => scrollRef.current?.scrollBy({ left: d === "l" ? -200 : 200, behavior: "smooth" });
+  const scrollDesk = (d: "l" | "r") => scrollRefDesktop.current?.scrollBy({ left: d === "l" ? -200 : 200, behavior: "smooth" });
+  const scrollMob = (d: "l" | "r") => scrollRefMobile.current?.scrollBy({ left: d === "l" ? -200 : 200, behavior: "smooth" });
+
+  const renderCarousel = (isMobile: boolean) => (
+    <div className="relative flex items-center justify-center gap-2 w-full">
+      {isMobile && <button onClick={() => scrollMob("l")} className="shrink-0 w-8 h-8 rounded-full bg-transparent border border-gray-300 hover:border-burgundy text-[var(--navy)] hover:text-burgundy flex items-center justify-center transition-colors shadow-sm"><ChevronLeft size={16} /></button>}
+      
+      <div ref={isMobile ? scrollRefMobile : scrollRefDesktop} className="flex gap-2 lg:gap-3 overflow-x-auto scrollbar-hide scroll-smooth py-3 px-1 max-w-full lg:justify-center">
+        {CATEGORIES.map(c => (
+          <button key={c} onClick={() => { setCat(c); setExpandedId(null); setImgIdx(0); }}
+            className={`shrink-0 px-5 py-2.5 text-[9px] lg:text-[10px] tracking-[0.15em] font-sans font-semibold uppercase transition-all whitespace-nowrap rounded-[4px] border ${cat === c ? "bg-burgundy text-white border-burgundy shadow-md scale-105" : "bg-transparent text-[var(--text-muted)] border-[var(--border-color)] hover:border-burgundy hover:text-burgundy"}`}>
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {isMobile && <button onClick={() => scrollMob("r")} className="shrink-0 w-8 h-8 rounded-full bg-transparent border border-gray-300 hover:border-burgundy text-[var(--navy)] hover:text-burgundy flex items-center justify-center transition-colors shadow-sm"><ChevronRight size={16} /></button>}
+    </div>
+  );
 
   return (
     <section id="tratamientos" className="py-20 lg:py-28 bg-gradient-to-b from-[var(--cream)] to-white">
       <Reveal className="max-w-6xl mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl font-serif tracking-widest italic text-center mb-14">{t('menu.title')}</h2>
-        {/* Pill carousel */}
-        <div className="relative flex items-center gap-2 mb-14">
-          <button onClick={() => scroll("l")} className="shrink-0 w-10 h-10 bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors"><ChevronLeft size={20} className="text-gray-500" /></button>
-          <div ref={scrollRef} className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth py-1">
-            {CATEGORIES.map(c => (
-              <button key={c} onClick={() => { setCat(c); setExpandedId(null); setImgIdx(0); }}
-                className={`shrink-0 px-5 py-2.5 text-[10px] tracking-[0.15em] font-sans font-semibold uppercase transition-all whitespace-nowrap ${cat === c ? "bg-burgundy text-white shadow-lg" : "bg-gray-700 text-white hover:bg-gray-600"}`}>
-                {c}
-              </button>
-            ))}
+        <h2 className="text-3xl md:text-4xl font-serif tracking-widest italic text-center mb-10 lg:mb-14">{t('menu.title')}</h2>
+        
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-16 items-center">
+          
+          {/* Desktop Pill carousel (Hidden on Mobile) */}
+          <div className="hidden lg:flex col-span-12 mb-4">
+            {renderCarousel(false)}
           </div>
-          <button onClick={() => scroll("r")} className="shrink-0 w-10 h-10 bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors"><ChevronRight size={20} className="text-gray-500" /></button>
-        </div>
-        {/* Grid */}
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+
           {/* Image */}
-          <div className="relative aspect-[4/5] overflow-hidden">
-            <img src={catImgs[imgIdx]} alt={cat} className="w-full h-full object-cover transition-all duration-700 luxury-hover" loading="lazy" />
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-              {catImgs.map((_, i) => <button key={i} onClick={() => setImgIdx(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${i === imgIdx ? "bg-[var(--gold)] scale-125" : "bg-white/50 hover:bg-white/80"}`} />)}
-            </div>
+          <div className="order-1 lg:order-none lg:col-span-5 relative aspect-[4/5] lg:aspect-square overflow-hidden rounded-2xl shadow-2xl xl:max-w-md mx-auto w-full">
+            <img src={catImgs[imgIdx]} alt={cat} className="w-full h-full object-cover object-top transition-all duration-700 luxury-hover" loading="lazy" />
           </div>
+
+          {/* Mobile Pill carousel (Below Image, Hidden on Desktop) */}
+          <div className="order-2 lg:hidden w-full">
+            {renderCarousel(true)}
+          </div>
+
           {/* List */}
-          <div className="space-y-1">
+          <div className="order-3 lg:order-none lg:col-span-7 space-y-2 w-full">
             {filtered.map(item => (
               <div key={item.id} className="border-b border-[var(--border-color)] group">
-                <button onClick={() => setExpandedId(expandedId === item.id ? null : item.id)} className="w-full py-5 flex justify-between items-center text-left gap-4">
+                <button onClick={() => setExpandedId(expandedId === item.id ? null : item.id)} className="w-full py-6 flex justify-between items-center text-left gap-4">
                   <div className="flex items-start gap-3">
                     {item.description && (
                       <span className={`mt-1 shrink-0 w-6 h-6 border flex items-center justify-center transition-all ${expandedId === item.id ? "bg-teal border-teal text-white shadow-md" : "border-gray-300 text-gray-400 group-hover:border-teal group-hover:text-teal"}`}>
@@ -266,7 +267,7 @@ function TreatmentMenu() {
                 <div className={`overflow-hidden transition-all duration-500 ${expandedId === item.id ? "max-h-60 pb-6 opacity-100" : "max-h-0 opacity-0"}`}>
                   <div className="pl-9">
                     <p className="text-sm font-sans leading-relaxed text-[var(--text-muted)] tracking-wide mb-4">{item.description}</p>
-                    {item.price && <p className="text-sm font-sans text-burgundy font-semibold tracking-wider mb-4 text-base">${item.price} USD</p>}
+                    {item.price && <p className="text-sm font-sans text-burgundy font-semibold tracking-wider mb-4 text-base">${item.price} MXN</p>}
                     <button onClick={(e) => { e.stopPropagation(); addItem({ ...item, imageUrl: catImgs[0] }); }} className="bg-burgundy hover:bg-burgundy/90 text-white px-6 py-3 tracking-[0.2em] text-[10px] font-sans font-semibold shadow-lg shadow-[var(--burgundy)]/20 transition-all uppercase active:scale-95">{t('menu.addCart')}</button>
                   </div>
                 </div>
@@ -279,29 +280,80 @@ function TreatmentMenu() {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   TRIPADVISOR
-   ═══════════════════════════════════════════════════════════════ */
-function Tripadvisor() {
+function ReviewsSection() {
   const { t } = useLanguage();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scroll = (d: "l" | "r") => scrollRef.current?.scrollBy({ left: d === "l" ? -300 : 300, behavior: "smooth" });
+
   return (
-    <section className="py-20 lg:py-28 bg-gradient-to-b from-[var(--burgundy)]/5 to-[var(--cream)]">
-      <Reveal className="max-w-3xl mx-auto px-4 text-center">
-        <p className="text-2xl md:text-3xl font-serif italic text-burgundy tracking-wider mb-10 leading-relaxed">{t('reviews.title')}</p>
-        <p className="text-base font-serif italic text-[var(--text)]/80 leading-[1.9] mb-8">{t('reviews.subtitle')}</p>
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold">RE</div>
-          <div className="text-left"><span className="text-sm font-sans font-semibold">Rick Ellerbeck</span><span className="text-xs text-[var(--text-muted)] ml-2">From Tripadvisor</span></div>
-        </div>
-        <div className="flex justify-center gap-0.5 mb-8">{[1, 2, 3, 4, 5].map(s => <Star key={s} size={16} className="fill-yellow-400 text-yellow-400" />)}</div>
-        <button className="border border-[var(--text)]/30 px-10 py-3 tracking-[0.2em] text-[10px] font-sans uppercase hover:bg-[var(--text)] hover:text-[var(--cream)] transition-all active:scale-95">{t('reviews.btn')}</button>
-        <div className="flex justify-center gap-5 mt-12">
-          <a href={siteInfo.social.facebook} target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full border border-[var(--text)]/20 flex items-center justify-center text-[var(--text)]/60 hover:text-burgundy hover:border-burgundy transition-all hover:-translate-y-1" aria-label="Facebook">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-          </a>
-          <a href={siteInfo.social.instagram} target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full border border-[var(--text)]/20 flex items-center justify-center text-[var(--text)]/60 hover:text-burgundy hover:border-burgundy transition-all hover:-translate-y-1" aria-label="Instagram">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-          </a>
+    <section className="py-20 lg:py-28 bg-[var(--cream)]">
+      <Reveal className="max-w-7xl mx-auto px-4">
+        <h2 className="text-3xl md:text-5xl font-serif tracking-wider text-center text-[var(--navy)] mb-10 md:mb-16">{t('reviews.title')}</h2>
+        
+        <div className="relative">
+          {/* Mobile Navigation Arrows */}
+          <button onClick={() => scroll("l")} className="md:hidden absolute left-0 top-1/2 -translate-y-1/2 -ml-2 sm:-ml-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-[var(--border-color)] text-[var(--navy)] hover:text-burgundy flex items-center justify-center transition-colors shadow-lg"><ChevronLeft size={20} /></button>
+          <button onClick={() => scroll("r")} className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 -mr-2 sm:-mr-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-[var(--border-color)] text-[var(--navy)] hover:text-burgundy flex items-center justify-center transition-colors shadow-lg"><ChevronRight size={20} /></button>
+
+          <div ref={scrollRef} className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 text-left overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-8 pt-2 px-1 scroll-smooth">
+            {/* Review 1 */}
+            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-xl flex flex-col justify-between shrink-0 w-[85vw] md:w-auto snap-center shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
+              <div>
+                <div className="flex gap-4 items-center mb-6">
+                  <div className="w-12 h-12 rounded-full bg-[#5d463e] text-white flex items-center justify-center font-bold text-lg shrink-0">Z</div>
+                  <div>
+                    <p className="font-sans font-semibold text-[var(--navy)] leading-tight">{t('reviews.r1_name')}</p>
+                    <p className="text-[10px] md:text-xs text-[var(--text-muted)] font-sans">{t('reviews.r1_meta')}</p>
+                  </div>
+                </div>
+                <div className="flex gap-1 mb-3 items-center">
+                  <div className="flex gap-0.5">
+                    {[1,2,3,4,5].map(s => <Star key={s} size={14} className="fill-yellow-400 text-yellow-400" />)}
+                  </div>
+                  <span className="text-[10px] md:text-xs text-[var(--text-muted)] ml-2">{t('reviews.r1_time')}</span>
+                </div>
+                <p className="font-sans text-[var(--text)] leading-relaxed text-sm">{t('reviews.r1_text')}</p>
+              </div>
+            </div>
+            {/* Review 2 */}
+            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-xl flex flex-col justify-between shrink-0 w-[85vw] md:w-auto snap-center shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
+              <div>
+                <div className="flex gap-4 items-center mb-6">
+                  <div className="w-12 h-12 rounded-full shadow-md overflow-hidden shrink-0"><img src="https://ui-avatars.com/api/?name=F&background=random" className="w-full h-full object-cover" alt="F" loading="lazy" /></div>
+                  <div>
+                    <p className="font-sans font-semibold text-[var(--navy)] leading-tight">{t('reviews.r2_name')}</p>
+                    <p className="text-[10px] md:text-xs text-[var(--text-muted)] font-sans">{t('reviews.r2_meta')}</p>
+                  </div>
+                </div>
+                <div className="flex gap-1 mb-3 items-center">
+                  <div className="flex gap-0.5">
+                    {[1,2,3,4,5].map(s => <Star key={s} size={14} className="fill-yellow-400 text-yellow-400" />)}
+                  </div>
+                  <span className="text-[10px] md:text-xs text-[var(--text-muted)] ml-2">{t('reviews.r2_time')}</span>
+                </div>
+                <p className="font-sans text-[var(--text)] leading-relaxed text-sm">{t('reviews.r2_text')}</p>
+              </div>
+            </div>
+            {/* Review 3 */}
+            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-xl flex flex-col justify-between shrink-0 w-[85vw] md:w-auto snap-center shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
+              <div>
+                <div className="flex gap-4 items-center mb-6">
+                  <div className="w-12 h-12 rounded-full shadow-md overflow-hidden shrink-0"><img src="https://ui-avatars.com/api/?name=A&background=random" className="w-full h-full object-cover" alt="A" loading="lazy" /></div>
+                  <div>
+                    <p className="font-sans font-semibold text-[var(--navy)] leading-tight">{t('reviews.r3_name')}</p>
+                    <p className="text-[10px] md:text-xs text-[var(--text-muted)] font-sans">{t('reviews.r3_meta')}</p>
+                  </div>
+                </div>
+                <div className="flex gap-1 mb-3 items-center">
+                  <div className="flex gap-0.5">
+                    {[1,2,3,4,5].map(s => <Star key={s} size={14} className="fill-yellow-400 text-yellow-400" />)}
+                  </div>
+                  <span className="text-[10px] md:text-xs text-[var(--text-muted)] ml-2">{t('reviews.r3_time')}</span>
+                </div>
+                <p className="font-sans text-[var(--text)] leading-relaxed text-sm">{t('reviews.r3_text')}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </Reveal>
     </section>
@@ -311,13 +363,68 @@ function Tripadvisor() {
 /* ═══════════════════════════════════════════════════════════════
    CART DRAWER
    ═══════════════════════════════════════════════════════════════ */
+function FloatingCart() {
+  const { count, setOpen } = useCart();
+  const [bounce, setBounce] = useState(false);
+
+  useEffect(() => {
+    if (count > 0) {
+      setBounce(true);
+      const timer = setTimeout(() => setBounce(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [count]);
+
+  if (count === 0) return null;
+
+  return (
+    <div className="fixed bottom-6 right-6 z-[60]">
+      <button 
+        onClick={() => setOpen(true)} 
+        className={`bg-burgundy text-white p-4 rounded-full shadow-[0_10px_25px_-5px_rgba(99,11,17,0.6)] flex items-center justify-center hover:bg-burgundy/90 transition-transform duration-300 ${bounce ? 'scale-125' : 'scale-100 hover:scale-110'}`}
+      >
+        <ShoppingBag size={24} />
+        <span className="absolute -top-1 -right-1 bg-white text-burgundy text-[10px] w-6 h-6 flex items-center justify-center rounded-full font-bold shadow-md border border-[var(--border-color)]">
+          {count}
+        </span>
+      </button>
+    </div>
+  );
+}
+
 function CartDrawer() {
   const { items, removeItem, updateQty, total, count, open, setOpen } = useCart();
   const { t } = useLanguage();
   const [name, setName] = useState(""); const [date, setDate] = useState("");
-  const [hour, setHour] = useState("10:00 AM"); const [people, setPeople] = useState(1);
-  const [promo, setPromo] = useState("");
+  const [people, setPeople] = useState(1);
   const has = items.length > 0;
+
+  const handleCheckout = () => {
+    if (!has) {
+      alert(t('cart.emptyMsg') || "Por favor selecciona al menos un tratamiento.");
+      return;
+    }
+    if (!name.trim() || !date) {
+      alert("Por favor completa tu nombre y la fecha de la reservación para continuar.");
+      return;
+    }
+    
+    const phone = siteInfo.phoneRaw.replace(/\D/g, '');
+    let msg = `Hola DALI SPA, quiero solicitar disponibilidad para una sesión.%0A%0A`;
+    msg += `*Detalles de Contacto:*%0A`;
+    msg += `👤 Nombre: ${name}%0A`;
+    msg += `📅 Fecha: ${date}%0A`;
+    msg += `👥 Personas: ${people}%0A`;
+    
+    msg += `%0A*Tratamientos Seleccionados:*%0A`;
+    items.forEach(i => {
+      msg += `• ${i.quantity}x ${i.name} ($${(i.price || 0) * i.quantity} MXN)%0A`;
+    });
+    
+    msg += `%0A*Total Estimado:* $${total} MXN`;
+    
+    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+  };
 
   return (
     <>
@@ -338,19 +445,18 @@ function CartDrawer() {
           <div className="space-y-4">
             <h3 className="text-[10px] tracking-[0.3em] font-sans text-[var(--text-muted)] uppercase font-semibold flex items-center gap-2"><CalendarDays size={14} /> {t('cart.appointmentDetails')}</h3>
             <div className="grid grid-cols-2 gap-3">
-              <div><label className="text-[9px] tracking-widest text-[var(--text-muted)] uppercase block mb-1">{t('cart.date')}</label><input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2.5 text-xs font-sans focus:outline-none focus:border-burgundy transition-colors" /></div>
               <div>
-                <label className="text-[9px] tracking-widest text-[var(--text-muted)] uppercase block mb-1">{t('cart.hour')}</label>
-                <select value={hour} onChange={e => setHour(e.target.value)} className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2.5 text-xs font-sans focus:outline-none focus:border-burgundy transition-colors appearance-none">
-                  {["10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM"].map(h => <option key={h} value={h} className="text-black">{h}</option>)}
-                </select>
+                <label className="text-[9px] tracking-widest text-[var(--text-muted)] uppercase block mb-1">{t('cart.date')}</label>
+                <input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full h-11 border border-[var(--border-color)] bg-transparent px-3 text-xs font-sans focus:outline-none focus:border-burgundy transition-colors" />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><label className="text-[9px] tracking-widest text-[var(--text-muted)] uppercase block mb-1 flex items-center gap-1"><Users size={12} /> {t('cart.people')}</label>
-                <div className="flex items-center border border-[var(--border-color)]"><button onClick={() => setPeople(Math.max(1, people - 1))} className="px-3 py-2 text-[var(--text-muted)] hover:text-burgundy"><Minus size={12} /></button><span className="flex-1 text-center text-xs">{people}</span><button onClick={() => setPeople(people + 1)} className="px-3 py-2 text-[var(--text-muted)] hover:text-burgundy"><Plus size={12} /></button></div>
+              <div>
+                <label className="text-[9px] tracking-widest text-[var(--text-muted)] uppercase block mb-1 flex items-center gap-1"><Users size={12} /> {t('cart.people')}</label>
+                <div className="flex items-center h-11 border border-[var(--border-color)]">
+                  <button onClick={() => setPeople(Math.max(1, people - 1))} className="h-full px-3 text-[var(--text-muted)] hover:text-burgundy flex items-center justify-center"><Minus size={12} /></button>
+                  <span className="flex-1 text-center text-xs h-full flex items-center justify-center">{people}</span>
+                  <button onClick={() => setPeople(people + 1)} className="h-full px-3 text-[var(--text-muted)] hover:text-burgundy flex items-center justify-center"><Plus size={12} /></button>
+                </div>
               </div>
-              <div><label className="text-[9px] tracking-widest text-[var(--text-muted)] uppercase block mb-1 flex items-center gap-1"><Tag size={12} /> {t('cart.promo')}</label><input type="text" value={promo} onChange={e => setPromo(e.target.value)} placeholder={t('cart.promoPlaceholder')} className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2.5 text-xs font-sans focus:outline-none focus:border-burgundy transition-colors placeholder:text-[var(--text-muted)]/40" /></div>
             </div>
           </div>
           {has && <div className="border-t border-[var(--border-color)]" />}
@@ -362,7 +468,7 @@ function CartDrawer() {
                   <div className="w-16 h-20 bg-gray-200 overflow-hidden shrink-0">{item.imageUrl && <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />}</div>
                   <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
                     <div><div className="flex justify-between items-start gap-2"><h4 className="text-xs font-serif tracking-wider uppercase truncate">{item.name}</h4><button onClick={() => removeItem(item.id)} className="text-[var(--text-muted)] hover:text-red-500 transition-colors shrink-0"><Trash2 size={12} /></button></div><p className="text-[9px] tracking-widest font-sans text-burgundy uppercase mt-0.5">{item.duration}</p></div>
-                    <div className="flex justify-between items-end"><span className="text-xs font-sans tracking-wider font-semibold">${(item.price || 0) * item.quantity} USD</span><div className="flex items-center border border-[var(--border-color)]"><button onClick={() => updateQty(item.id, item.quantity - 1)} className="px-2 py-1 text-[var(--text-muted)]"><Minus size={10} /></button><span className="text-[10px] font-sans w-5 text-center">{item.quantity}</span><button onClick={() => updateQty(item.id, item.quantity + 1)} className="px-2 py-1 text-[var(--text-muted)]"><Plus size={10} /></button></div></div>
+                    <div className="flex justify-between items-end"><span className="text-xs font-sans tracking-wider font-semibold">${(item.price || 0) * item.quantity} MXN</span><div className="flex items-center border border-[var(--border-color)]"><button onClick={() => updateQty(item.id, item.quantity - 1)} className="px-2 py-1 text-[var(--text-muted)]"><Minus size={10} /></button><span className="text-[10px] font-sans w-5 text-center">{item.quantity}</span><button onClick={() => updateQty(item.id, item.quantity + 1)} className="px-2 py-1 text-[var(--text-muted)]"><Plus size={10} /></button></div></div>
                   </div>
                 </div>
               ))}
@@ -372,8 +478,13 @@ function CartDrawer() {
         </div>
         {/* Footer */}
         <div className="p-5 border-t border-[var(--border-color)] space-y-3">
-          {has && <div className="flex justify-between items-center"><span className="text-[10px] tracking-widest font-sans uppercase text-[var(--text-muted)]">{t('cart.subtotal')}</span><span className="text-lg font-sans tracking-widest font-semibold">${total} USD</span></div>}
-          <button className="w-full bg-burgundy hover:bg-burgundy/90 text-white py-4 tracking-[0.2em] font-sans text-[10px] font-semibold shadow-xl shadow-[var(--burgundy)]/20 transition-colors uppercase">{has ? t('cart.proceedBtn') : t('cart.searchBtn')}</button>
+          {has && <div className="flex justify-between items-center mb-1"><span className="text-[10px] tracking-widest font-sans uppercase text-[var(--text-muted)]">{t('cart.subtotal')}</span><span className="text-lg font-sans tracking-widest font-semibold">${total} MXN</span></div>}
+          <button onClick={handleCheckout} className="w-full bg-burgundy hover:bg-burgundy/90 text-white py-4 tracking-[0.2em] font-sans text-[10px] font-semibold shadow-xl shadow-[var(--burgundy)]/20 transition-colors uppercase">{has ? t('cart.proceedBtn') : t('cart.searchBtn')}</button>
+          
+          {has && <p className="text-[9px] text-center text-[var(--text-muted)] leading-relaxed italic px-2">
+            {t('cart.disclaimer')}
+          </p>}
+          
           <button onClick={() => setOpen(false)} className="w-full text-[var(--text-muted)] font-sans text-[10px] tracking-widest uppercase py-2 hover:text-[var(--text)] transition-colors">{t('cart.continueBtn')}</button>
         </div>
       </div>
@@ -397,9 +508,9 @@ function GallerySection() {
 
       {/* Infinite Ticker Container */}
       <div className="relative">
-        <div className="flex gap-4 animate-ticker hover:pause-animation">
+        <div className="flex gap-6 animate-ticker hover:pause-animation">
           {[...galleryImages, ...galleryImages].map((img, i) => (
-            <div key={i} className="shrink-0 w-[75vw] md:w-[40vw] lg:w-[25vw] aspect-[4/5] overflow-hidden group rounded-lg shadow-lg">
+            <div key={i} className="shrink-0 w-[92vw] md:w-[600px] lg:w-[700px] aspect-[4/5] md:aspect-[4/3] overflow-hidden group rounded-2xl shadow-2xl border-4 border-white/50">
               <img
                 src={img}
                 alt={`Galeria ${i + 1}`}
@@ -414,21 +525,20 @@ function GallerySection() {
       <style>{`
         @keyframes ticker {
           0% { transform: translateX(0); }
-          100% { transform: translateX(calc(-50% - 0.5rem)); }
+          100% { transform: translateX(calc(-50% - 0.75rem)); }
         }
         .animate-ticker {
           width: fit-content;
-          animation: ticker 30s linear infinite;
-          padding: 0 1rem;
+          animation: ticker 25s linear infinite;
+          padding: 0 1.5rem;
         }
         .animate-ticker:hover {
           animation-play-state: paused;
         }
-        @media (min-width: 1024px) {
+        @media (max-width: 768px) {
           .animate-ticker {
-            animation-duration: 45s;
+            animation-duration: 20s;
           }
-        }
       `}</style>
     </section>
   );
@@ -444,8 +554,8 @@ function ContactInfoSection() {
     <section className="bg-navy py-20 px-4">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 items-center">
         {/* Left Side: Image (replaces the form) */}
-        <Reveal className="bg-cream rounded-xl p-3 shadow-2xl relative">
-          <div className="aspect-[4/3] rounded-lg overflow-hidden">
+        <Reveal className="bg-cream rounded-2xl p-3 shadow-2xl relative">
+          <div className="aspect-[4/3] rounded-2xl overflow-hidden">
             <img src={images.waiting} alt="Te Esperamos" className="w-full h-full object-cover" loading="lazy" />
           </div>
         </Reveal>
@@ -453,13 +563,13 @@ function ContactInfoSection() {
         {/* Right Side: Info */}
         <Reveal className="space-y-10 text-white">
           <div className="space-y-4">
-            <h2 className="text-3xl lg:text-4xl font-serif tracking-wider text-cream">Te estamos esperando</h2>
+            <h2 className="text-3xl lg:text-4xl font-serif tracking-wider text-cream">{t('contactInfo.title')}</h2>
             <div className="w-12 h-0.5 bg-burgundy" />
           </div>
 
           <div className="space-y-8">
             <div className="space-y-3">
-              <h3 className="text-[12px] font-sans text-cream/70 tracking-[0.2em] uppercase">Horarios de Atención</h3>
+              <h3 className="text-[12px] font-sans text-cream/70 tracking-[0.2em] uppercase">{t('contactInfo.hoursLabel')}</h3>
               <p className="text-sm font-sans tracking-wide leading-relaxed font-light text-white/90">
                 {siteInfo.schedule.weekdays} <br />
                 {siteInfo.schedule.weekend}
@@ -467,10 +577,10 @@ function ContactInfoSection() {
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-[12px] font-sans text-cream/70 tracking-[0.2em] uppercase">Contacto y Redes Sociales</h3>
+              <h3 className="text-[12px] font-sans text-cream/70 tracking-[0.2em] uppercase">{t('contactInfo.socialLabel')}</h3>
               <p className="text-sm font-sans tracking-wide leading-relaxed font-light text-white/90 mb-4 flex items-center gap-2">
                 <Phone size={14} className="text-burgundy" />
-                <span>Teléfono: <a href={`tel:${siteInfo.phoneRaw}`} className="hover:text-cream transition-colors">{siteInfo.phone}</a></span>
+                <span>{t('contactInfo.phone')} <a href={`tel:${siteInfo.phoneRaw}`} className="hover:text-cream transition-colors">{siteInfo.phone}</a></span>
               </p>
               <div className="flex gap-3">
                 <a href={siteInfo.social.facebook} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-white/5 hover:bg-burgundy text-white px-5 py-2.5 rounded-full text-xs transition-colors tracking-widest font-light border border-white/10 group">
@@ -491,12 +601,13 @@ function ContactInfoSection() {
 }
 
 function InteractiveMapSection() {
+  const { t } = useLanguage();
   return (
     <section id="ubicacion" className="bg-cream py-20 px-4">
       <div className="max-w-6xl mx-auto space-y-12">
         <Reveal className="text-center">
-          <h2 className="text-4xl lg:text-5xl font-serif text-[var(--navy)] tracking-wider">Encuéntranos</h2>
-          <p className="font-sans text-[var(--text-muted)] text-sm tracking-widest mt-4">Visítanos en nuestra ubicación</p>
+          <h2 className="text-4xl lg:text-5xl font-serif text-[var(--navy)] tracking-wider">{t('map.title')}</h2>
+          <p className="font-sans text-[var(--text-muted)] text-sm tracking-widest mt-4">{t('map.subtitle')}</p>
         </Reveal>
 
         <Reveal className="relative w-full aspect-[4/3] md:aspect-[21/9] rounded-2xl overflow-hidden shadow-2xl border-4 border-white isolate">
@@ -514,13 +625,13 @@ function InteractiveMapSection() {
               rel="noreferrer"
               className="inline-block w-full text-center bg-burgundy hover:bg-burgundy/90 text-white font-sans text-xs tracking-[0.2em] uppercase py-3.5 px-6 rounded-full transition-all border border-transparent shadow-[0_4px_15px_-3px_rgba(99,11,17,0.4)]"
             >
-              Ver en Google Maps
+              {t('map.viewExternal')}
             </a>
           </div>
 
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3678.9317578796857!2d-102.53746869999999!3d22.7655593!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86824eca0610d625%3A0xae8c2b63b9e23152!2sDALI%20SPA!5e0!3m2!1ses-419!2smx!4v1775606047233!5m2!1ses-419!2smx"
-            className="absolute inset-0 w-full h-full grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-1000 z-10"
+            className="absolute inset-0 w-full h-full z-10"
             style={{ border: 0 }}
             allowFullScreen={true}
             loading="lazy"
@@ -542,7 +653,7 @@ function InteractiveMapSection() {
             rel="noreferrer"
             className="inline-block text-center bg-burgundy text-white font-sans text-xs tracking-[0.2em] uppercase py-3 px-6 rounded-full"
           >
-            Ver en Maps
+            {t('map.viewMaps')}
           </a>
         </div>
       </div>
@@ -551,17 +662,18 @@ function InteractiveMapSection() {
 }
 
 function FAQSection() {
+  const { t } = useLanguage();
   const faqs = [
-    { q: "¿Con cuánta anticipación debo llegar?", a: "Le sugerimos llegar al menos 15 minutos antes de su cita reservada para permitir el tiempo suficiente para el proceso de registro, cambiar su vestimenta y comenzar a relajarse adecuadamente en nuestras instalaciones." },
-    { q: "¿Qué debo llevar?", a: "Le proporcionaremos una bata limpia, toallas y amenidades exclusivas de baño. Sin embargo, si desea utilizar las instalaciones de hidroterapia con mayor comodidad, le sugerimos traer su propio traje de baño." },
-    { q: "¿Cuentan con estacionamiento?", a: "Sí, contamos con estacionamiento privado y seguro para todos nuestros huéspedes durante la duración de sus tratamientos en el spa." },
+    { q: t('faq.q1'), a: t('faq.a1') },
+    { q: t('faq.q2'), a: t('faq.a2') },
+    { q: t('faq.q3'), a: t('faq.a3') },
   ];
 
   return (
     <section id="faq" className="bg-cream py-20 px-4 border-t border-[var(--border-color)]/20">
       <div className="max-w-4xl mx-auto">
         <Reveal className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-serif text-[var(--navy)] tracking-wider">Preguntas Frecuentes</h2>
+          <h2 className="text-3xl lg:text-4xl font-serif text-[var(--navy)] tracking-wider">{t('faq.title')}</h2>
           <div className="w-12 h-0.5 bg-burgundy mx-auto mt-6" />
         </Reveal>
         <Reveal className="space-y-4">
@@ -596,7 +708,7 @@ function MinimalFooter() {
       </div>
       <div className="w-full max-w-5xl h-px bg-white/10 mb-8" />
       <p className="text-[10px] tracking-widest font-sans uppercase text-white/30 text-center">
-        Desarrollado por <a href="https://devdiazlabs.com" target="_blank" rel="noreferrer" className="text-white hover:text-cream transition-colors font-medium ml-1">DevDiaz Labs.</a>
+        {t('footer.devBy')} <a href="https://devdiazlabs.com" target="_blank" rel="noreferrer" className="text-white hover:text-cream transition-colors font-medium ml-1">DevDiaz Labs.</a>
       </p>
     </footer>
   );
@@ -611,13 +723,14 @@ export default function DaliSpa() {
       <CartProvider>
         <Navbar />
         <Hero />
-        <InfoSections />
         <TreatmentMenu />
         <GallerySection />
+        <ReviewsSection />
         <ContactInfoSection />
         <InteractiveMapSection />
         <FAQSection />
         <MinimalFooter />
+        <FloatingCart />
         <CartDrawer />
       </CartProvider>
     </LanguageProvider>
