@@ -90,10 +90,6 @@ export const siteInfo = {
   phoneRaw: "+524921178858",
   address: "Grieta 4, Cañada de la Bufa, 98619 Guadalupe, Zac.",
   mapLink: "https://maps.app.goo.gl/F1tBS64SgAeKDS1e7",
-  schedule: {
-    weekdays: "Lunes a viernes: 10 am - 8pm",
-    weekend: "Sabado: 10am - 4pm"
-  },
   social: {
     facebook: "https://www.facebook.com/dalispaa",
     instagram: "https://www.instagram.com/spadali_zac"

@@ -6,18 +6,46 @@ interface Props {
   description?: string;
 }
 
-const { title = 'DALI SPA | Belleza y Relajacion', description = 'Experience the ultimate spa sanctuary at DALI SPA. Luxury treatments, holistic rituals, and rejuvenating therapies.' } = Astro.props;
+const {
+  title = 'DALI SPA | Belleza y Relajación',
+  description = 'Descubre el santuario de belleza y relajación en Guadalupe, Zac. Tratamientos faciales, masajes y terapias de bienestar de lujo en DALI SPA.'
+} = Astro.props;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+
+    <!-- Open Graph / Redes Sociales -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/images/Dali-hero.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="/images/Dali-hero.webp" />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Preload imagen hero (LCP crítico) -->
+    <link rel="preload" as="image" href="/images/Dali-hero.webp" />
+
+    <!-- Google Fonts con preconnect para mejor performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&family=Marcellus&display=swap"
+    />
+
     <title>{title}</title>
   </head>
   <body class="bg-cream text-[var(--text)] min-h-screen">

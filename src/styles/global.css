@@ -1,21 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&family=Marcellus&display=swap');
 @import "tailwindcss";
- 
- /* ===== DESIGN TOKENS ===== */
- :root {
-   --burgundy: #630B11;
-   --burgundy-dark: #4D080D;
-   --burgundy-light: #8A151D;
-   --navy: #0a1628;
-   --gold: #c9a84c;
-   --cream: #F2EBE1;
-   --cream-uniform: #DCC8B1;
-   --logo-charcoal: #333333;
-   --text: #1a1a1a;
-   --text-muted: #6b7280;
-   --border-color: #d1c7bc;
- }
 
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --burgundy: #630B11;
+  --burgundy-dark: #4D080D;
+  --burgundy-light: #8A151D;
+  --navy: #0a1628;
+  --gold: #c9a84c;
+  --cream: #F2EBE1;
+  --cream-uniform: #DCC8B1;
+  --logo-charcoal: #333333;
+  --text: #1a1a1a;
+  --text-muted: #6b7280;
+  --border-color: #d1c7bc;
+}
 
 /* ===== KEYFRAMES ===== */
 @keyframes fade-in {
@@ -25,6 +23,12 @@
 @keyframes fade-in-delay {
   0%, 30% { opacity: 0; transform: translate3d(0, 16px, 0); }
   100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Ticker unificado: usa calc para compensar el gap entre imágenes */
+@keyframes ticker {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(calc(-50% - 0.75rem), 0, 0); }
 }
 
 /* ===== BASE ===== */
@@ -55,12 +59,14 @@
   .bg-cream { background-color: var(--cream); }
   .text-gold { color: var(--gold); }
   .border-burgundy { border-color: var(--burgundy); }
+
   .animate-fade-in {
     animation: fade-in 0.9s ease-out forwards;
   }
   .animate-fade-in-delay {
     animation: fade-in-delay 1.2s ease-out forwards;
   }
+
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -86,18 +92,22 @@
     filter: brightness(1.08) contrast(1.02);
   }
 
+  /* GALLERY TICKER — consolidado, sin duplicados */
   .animate-ticker {
     animation: ticker 25s linear infinite;
     display: flex;
     width: max-content;
+    will-change: transform;
+    padding: 0 1.5rem;
+  }
+  .animate-ticker:hover {
+    animation-play-state: paused;
   }
 }
 
-@keyframes ticker {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
-}
-
-.pause-animation {
-  animation-play-state: paused;
+/* Mobile: ticker más rápido en pantallas pequeñas */
+@media (max-width: 768px) {
+  .animate-ticker {
+    animation-duration: 20s;
+  }
 }

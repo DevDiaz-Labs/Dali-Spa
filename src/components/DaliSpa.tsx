@@ -60,8 +60,7 @@ const NAV_LINKS = [
   { key: "location", href: "#ubicacion" },
   { key: "faq", href: "#faq" }
 ];
-const MENU_L = [];
-const MENU_R = [];
+
 
 /* ═══════════════════════════════════════════════════════════════
    FLAGS (SVG)
@@ -401,32 +400,34 @@ function CartDrawer() {
   const { t } = useLanguage();
   const [name, setName] = useState(""); const [date, setDate] = useState("");
   const [people, setPeople] = useState(1);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const has = items.length > 0;
 
   const handleCheckout = () => {
     if (!has) {
-      alert(t('cart.alertEmpty') || "Por favor selecciona al menos un tratamiento.");
+      setValidationError(t('cart.alertEmpty'));
       return;
     }
     if (!name.trim() || !date) {
-      alert(t('cart.alertForm') || "Por favor completa tu nombre y la fecha de la reservación para continuar.");
+      setValidationError(t('cart.alertForm'));
       return;
     }
-    
+    setValidationError(null);
+
     const phone = siteInfo.phoneRaw.replace(/\D/g, '');
     let msg = `${t('whatsapp.greeting')}%0A%0A`;
     msg += `${t('whatsapp.contactDetails')}%0A`;
-    msg += `${t('whatsapp.name')} ${name}%0A`;
-    msg += `${t('whatsapp.date')} ${date}%0A`;
+    msg += `${t('whatsapp.name')} ${encodeURIComponent(name)}%0A`;
+    msg += `${t('whatsapp.date')} ${encodeURIComponent(date)}%0A`;
     msg += `${t('whatsapp.people')} ${people}%0A`;
-    
+
     msg += `%0A${t('whatsapp.treatments')}%0A`;
     items.forEach(i => {
-      msg += `• ${i.quantity}x ${t(`treatments.items.${i.id}.name` as any)} ($${(i.price || 0) * i.quantity} MXN)%0A`;
+      msg += `• ${i.quantity}x ${encodeURIComponent(t(`treatments.items.${i.id}.name` as any))} ($${(i.price || 0) * i.quantity} MXN)%0A`;
     });
-    
+
     msg += `%0A${t('whatsapp.total')} $${total} MXN`;
-    
+
     window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
   };
 
@@ -444,14 +445,14 @@ function CartDrawer() {
           {/* Dates */}
           <div className="space-y-4">
             <h3 className="text-[10px] tracking-[0.3em] font-sans text-[var(--text-muted)] uppercase font-semibold flex items-center gap-2"><User size={14} /> {t('cart.contactTitle')}</h3>
-            <div><label className="text-[9px] tracking-widest text-[var(--text-muted)] uppercase block mb-1">{t('cart.fullName')}</label><input type="text" value={name} onChange={e => setName(e.target.value)} placeholder={t('cart.namePlaceholder')} className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2.5 text-xs font-sans focus:outline-none focus:border-burgundy transition-colors placeholder:text-[var(--text-muted)]/40" /></div>
+            <div><label className="text-[9px] tracking-widest text-[var(--text-muted)] uppercase block mb-1">{t('cart.fullName')}</label><input type="text" value={name} onChange={e => { setName(e.target.value); setValidationError(null); }} placeholder={t('cart.namePlaceholder')} className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2.5 text-xs font-sans focus:outline-none focus:border-burgundy transition-colors placeholder:text-[var(--text-muted)]/40" /></div>
           </div>
           <div className="space-y-4">
             <h3 className="text-[10px] tracking-[0.3em] font-sans text-[var(--text-muted)] uppercase font-semibold flex items-center gap-2"><CalendarDays size={14} /> {t('cart.appointmentDetails')}</h3>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[9px] tracking-widest text-[var(--text-muted)] uppercase block mb-1">{t('cart.date')}</label>
-                <input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full h-11 border border-[var(--border-color)] bg-transparent px-3 text-xs font-sans focus:outline-none focus:border-burgundy transition-colors" />
+                <input type="date" value={date} min={new Date().toISOString().split('T')[0]} onChange={e => { setDate(e.target.value); setValidationError(null); }} className="w-full h-11 border border-[var(--border-color)] bg-transparent px-3 text-xs font-sans focus:outline-none focus:border-burgundy transition-colors" />
               </div>
               <div>
                 <label className="text-[9px] tracking-widest text-[var(--text-muted)] uppercase block mb-1 flex items-center gap-1"><Users size={12} /> {t('cart.people')}</label>
@@ -483,6 +484,15 @@ function CartDrawer() {
         {/* Footer */}
         <div className="p-5 border-t border-[var(--border-color)] space-y-3">
           {has && <div className="flex justify-between items-center mb-1"><span className="text-[10px] tracking-widest font-sans uppercase text-[var(--text-muted)]">{t('cart.subtotal')}</span><span className="text-lg font-sans tracking-widest font-semibold">${total} MXN</span></div>}
+          {validationError && (
+            <div className="flex items-start gap-2.5 p-3 bg-rose-50 border border-rose-200 rounded-lg">
+              <span className="text-rose-500 text-base shrink-0 leading-none mt-0.5">&#9888;</span>
+              <p className="text-xs font-sans text-rose-700 leading-relaxed flex-1">{validationError}</p>
+              <button onClick={() => setValidationError(null)} className="text-rose-400 hover:text-rose-600 shrink-0 ml-auto transition-colors">
+                <X size={12} />
+              </button>
+            </div>
+          )}
           <button onClick={handleCheckout} className="w-full bg-burgundy hover:bg-burgundy/90 text-white py-4 tracking-[0.2em] font-sans text-[10px] font-semibold shadow-xl shadow-[var(--burgundy)]/20 transition-colors uppercase">{has ? t('cart.proceedBtn') : t('cart.searchBtn')}</button>
           
           {has && <p className="text-[9px] text-center text-[var(--text-muted)] leading-relaxed italic px-2">
@@ -512,7 +522,7 @@ function GallerySection() {
 
       {/* Infinite Ticker Container */}
       <div className="relative">
-        <div className="flex gap-6 animate-ticker hover:pause-animation">
+        <div className="flex gap-6 animate-ticker">
           {[...galleryImages, ...galleryImages].map((img, i) => (
             <div key={i} className="shrink-0 w-[92vw] md:w-[600px] lg:w-[700px] aspect-[4/5] md:aspect-[4/3] overflow-hidden group rounded-2xl shadow-2xl border-4 border-white/50">
               <img
@@ -526,24 +536,7 @@ function GallerySection() {
         </div>
       </div>
 
-      <style>{`
-        @keyframes ticker {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(calc(-50% - 0.75rem)); }
-        }
-        .animate-ticker {
-          width: fit-content;
-          animation: ticker 25s linear infinite;
-          padding: 0 1.5rem;
-        }
-        .animate-ticker:hover {
-          animation-play-state: paused;
-        }
-        @media (max-width: 768px) {
-          .animate-ticker {
-            animation-duration: 20s;
-          }
-      `}</style>
+
     </section>
   );
 }
@@ -575,8 +568,8 @@ function ContactInfoSection() {
             <div className="space-y-3">
               <h3 className="text-[12px] font-sans text-cream/70 tracking-[0.2em] uppercase">{t('contactInfo.hoursLabel')}</h3>
               <p className="text-sm font-sans tracking-wide leading-relaxed font-light text-white/90">
-                {siteInfo.schedule.weekdays} <br />
-                {siteInfo.schedule.weekend}
+                {t('contactInfo.weekdays')} <br />
+                {t('contactInfo.weekend')}
               </p>
             </div>
 

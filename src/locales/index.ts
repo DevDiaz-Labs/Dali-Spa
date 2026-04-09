@@ -97,7 +97,9 @@ export const translations = {
       title: "Te estamos esperando",
       hoursLabel: "Horarios de Atención",
       socialLabel: "Contacto y Redes Sociales",
-      phone: "Teléfono:"
+      phone: "Teléfono:",
+      weekdays: "Lunes a viernes: 10 am - 8 pm",
+      weekend: "Sábado: 10 am - 4 pm"
     },
     faq: {
       title: "Preguntas Frecuentes",
@@ -261,7 +263,9 @@ export const translations = {
       title: "We are waiting for you",
       hoursLabel: "Operating Hours",
       socialLabel: "Contact & Social Media",
-      phone: "Phone:"
+      phone: "Phone:",
+      weekdays: "Monday to Friday: 10 am - 8 pm",
+      weekend: "Saturday: 10 am - 4 pm"
     },
     faq: {
       title: "Frequently Asked Questions",
